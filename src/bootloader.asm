@@ -1,9 +1,11 @@
+CYLS    EQU     10
+
     ORG     0x7c00
 
     JMP     entry
 ; Standard FAT12 formate floppy header
     DB      0x90
-    DB      "BOOTLOADER"     ; Bootloader name
+    DB      "BOOTLOADER"    ; Bootloader name
     DW      512             ; Size of sector
     DB      1               ; Size of cluster
     DW      1               ; Start position of FAT (from first sector)
@@ -26,12 +28,50 @@
 ; Program start
 
 entry:
-    MOV     AX, 0
+    MOV     AX, 0           ; Init register
     MOV     SS, AX
     MOV     SP, 0x7C00
     MOV     DS, AX
-    MOV     ES, AX
 
+; Load floppy disk
+
+    MOV     AX, 0x0820
+    MOV     ES, AX
+    MOV     CH, 0           ; Cylinder 0
+    MOV     DH, 0           ; Head 0
+    MOV     CL, 2           ; Sector 2
+readloop:
+    MOV     SI, 0           ; Record number of fail
+retry:
+    MOV     AH, 0x02        ; Read disk cmd
+    MOV     AL, 1           ; Read 1 sector
+    MOV     BX, 0
+    MOV     DL, 0x00        ; Driver A
+    INT     0x13            ; Call disk driver BIOS
+    JNC     next             ; Successful
+    ADD     SI, 1
+    CMP     SI, 5
+    JAE     error
+    MOV     AH, 0x00
+    MOV     DL, 0x00
+    INT     0x13            ; Driver reset
+    JMP     retry
+next:
+    MOV     AX, ES          ; Address add 0x200
+    ADD     AX, 0x0020
+    MOV     ES, AX
+    ADD     CL, 1           ; Load next sector
+    CMP     CL, 18
+    JBE     readloop        ; Jump when CL <=18
+    MOV     CL, 1
+    ADD     CH, 1
+    CMP     CH, CYLS
+    JB      readloop        ; Jump when CH < CYLS
+fin:
+    HLT
+    JMP     fin
+
+error:
     MOV     SI, msg
 putloop:
     MOV     AL, [SI]
@@ -42,13 +82,10 @@ putloop:
     MOV     BX, 15          ; Set font color
     INT     0x10            ; Call VGA BIOS
     JMP     putloop
-fin:
-    HLT
-    JMP putloop
 
 msg:
     DB      0x0a, 0x0a
-    DB      "Hello, world"
+    DB      "load error"
     DB      0x0a
     DB      0
 
@@ -56,3 +93,8 @@ msg:
     TIMES   510-($-$$) DB 0
 
     DB      0X55, 0XAA
+
+    ;TIMES   512*(2880-1) DB 0
+    DB      0xF0, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00
+    TIMES   4600 DB 0
+    TIMES   1469440 DB 0
