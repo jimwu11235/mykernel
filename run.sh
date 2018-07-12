@@ -1,0 +1,1 @@
+bochs 'boot:a' 'floppya:1_44=./build/boot.img,status=inserted'

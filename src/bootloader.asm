@@ -5,7 +5,7 @@ CYLS    EQU     10
     JMP     entry
 ; Standard FAT12 formate floppy header
     DB      0x90
-    DB      "BOOTLOADER"    ; Bootloader name
+    DB      "mkfs.fat"    ; Bootloader name
     DW      512             ; Size of sector
     DB      1               ; Size of cluster
     DW      1               ; Start position of FAT (from first sector)
@@ -17,14 +17,20 @@ CYLS    EQU     10
     DW      18              ; Number of sectors per track (must be 18)
     DW      2               ; Number of head (must be 2)
     DD      0               ; Unuesed partition (must be 0)
-    DD      2880            ; Size of rewrite sector
+    DD      0            ; Size of rewrite sector
     DB      0, 0, 0x29      ; Unknown
-    DD      0xFFFFFFFF      ;
-    DB      "MYKERNEL   "   ; Disk name (11 bytes)
+    DD      0x0A313FB7      ;
+    DB      "NO NAME    "   ; Disk name (11 bytes)
     DB      "FAT12   "      ; Formation name (8 bytes)
-    ;RESB    18              ; 
     TIMES   18 DB 0
-
+    ; DW      0x1F0E
+    ; DD      0xAC7C5BBE
+    ; DD      0x0B74C022
+    ; DD      0xBB0EB456
+    ; DD      0x10CD0007
+    ; DD      0x32F0EB5E
+    ; DD      0xCD16CDE4
+    ; DB      0x19, 0xEB, 0xFE
 ; Program start
 
 entry:
@@ -64,12 +70,16 @@ next:
     CMP     CL, 18
     JBE     readloop        ; Jump when CL <=18
     MOV     CL, 1
+    ADD     DH, 1
+    CMP     DH, 2
+    JB      readloop
+    MOV     DH, 0
     ADD     CH, 1
     CMP     CH, CYLS
     JB      readloop        ; Jump when CH < CYLS
-fin:
-    HLT
-    JMP     fin
+; Jump to os
+    MOV     [0xFF0], CH     ; Record the IPL position
+    JMP     0xC400
 
 error:
     MOV     SI, msg
@@ -82,7 +92,9 @@ putloop:
     MOV     BX, 15          ; Set font color
     INT     0x10            ; Call VGA BIOS
     JMP     putloop
-
+fin:
+    HLT
+    JMP     fin
 msg:
     DB      0x0a, 0x0a
     DB      "load error"
