@@ -77,9 +77,75 @@ next:
     ADD     CH, 1
     CMP     CH, CYLS
     JB      readloop        ; Jump when CH < CYLS
+
+; Turn-off PIC interrupt
+    MOV     AL, 0xFF
+    OUT     0x21, AL
+    NOP
+    OUT     0xA1, AL
+
+    CLI                 ; Turn-off cli interrupt
+
+; Turn-on A20 gate
+    CALL    waitkbdout
+    MOV     AL, 0xD1
+    OUT     0x64, AL
+    CALL    waitkbdout
+    MOV     AL, 0xDF
+    OUT     0x60, AL
+    CALL    waitkbdout
+
+; Move code
+    mov     esi, 0xc400
+    mov     edi, 0x100000
+    mov     ecx, 10*1024
+    call    memcpy
+
+; Jump to protect mode
+; [INSTRSET "1486p"]
+    LGDT    [GDTR0]
+    MOV     EAX, CR0
+    AND     EAX, 0x7FFFFFFF
+    OR      EAX, 0x00000001
+    MOV     CR0, EAX
+;     jmp     pipelineflush
+; pipelineflush:
+    MOV     AX, 2*8
+    MOV     DS, AX
+    MOV     ES, AX
+    MOV     FS, AX
+    MOV     GS, AX
+    MOV     SS, AX
+
 ; Jump to os
-    MOV     [0xFF0], CH     ; Record the IPL position
-    JMP     0xC400
+    ; MOV     [0xFF0], CH     ; Record the IPL position
+    ; HLT
+    MOV     DWORD EAX, [0x00100004]
+    JMP     DWORD 1*8:0x00100010
+
+waitkbdout:
+    IN      AL, 0x64
+    AND     AL, 0x02
+    JNZ     waitkbdout
+    RET
+
+memcpy:
+    mov     eax, [esi]
+    add     esi, 4
+    mov     [edi], eax
+    add     edi, 4
+    sub     ecx, 4
+    jnz     memcpy
+    ret
+
+GDT0:
+    TIMES   8 DB 0
+    DW      0xFFFF, 0x0000, 0x9A00, 0x00CF  ; Code section
+    DW      0xFFFF, 0x0000, 0x9200, 0x00CF  ; Data section
+
+GDTR0:
+    DW      8*3-1
+    DD      GDT0
 
 error:
     MOV     SI, msg

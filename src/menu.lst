@@ -1,0 +1,3 @@
+title TestOS
+root (fd0)
+kernel /boot/kernel.bin
