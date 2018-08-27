@@ -1,34 +1,5 @@
 #include "system.h"
 
-unsigned char *memcpy(unsigned char *dest, const unsigned char *src, int count)
-{
-    const char *sp = (const char *)src;
-    char *dp = (char *)dest;
-    for(; count != 0; count--) *dp++ = *sp++;
-    return dest;
-}
-
-unsigned char *memset(unsigned char *dest, unsigned char val, int count)
-{
-    char *temp = (char *)dest;
-    for( ; count != 0; count--) *temp++ = val;
-    return dest;
-}
-
-unsigned short *memsetw(unsigned short *dest, unsigned short val, int count)
-{
-    unsigned short *temp = (unsigned short *)dest;
-    for( ; count != 0; count--) *temp++ = val;
-    return dest;
-}
-
-int strlen(const char *str)
-{
-    int retval;
-    for(retval = 0; *str != '\0'; str++) retval++;
-    return retval;
-}
-
 /* We will use this later on for reading from the I/O ports to get data
 *  from devices such as the keyboard. We are using what is called
 *  'inline assembly' in these routines to actually do the work */
@@ -69,6 +40,9 @@ void main()
     outportb(0xA1, 0xff);
 
     puts(text);
+    int a = -999999999;
+    int b = 123;
+    printk("a = %d  b = %d", a, b);
     /* ...and leave this loop in. There is an endless loop in
     *  'start.asm' also, if you accidentally delete this next line */
     for (;;);

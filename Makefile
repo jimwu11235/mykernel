@@ -7,6 +7,7 @@ BOOT_BINARY = $(patsubst ./src/boot/%.asm, ./build/%.bin, $(BOOT_SOURCE))
 BOOT_IMG = ./build/boot.img
 
 LD_FILE = ./src/kernel/link.ld
+LD_OBJ_FILE = ./src/kernel/objlink.ld
 KERNEL_BINARY = ./build/kernel.bin
 
 ASM = nasm
@@ -21,6 +22,7 @@ LD_FLAGS = -m elf_i386
 
 all:creat_img run
 img:creat_img
+deb:creat_img debug
 
 build/%.o:src/kernel/%.c
 	$(CC) $(C_FLAGS) $< -o $@
@@ -33,6 +35,7 @@ $(BOOT_BINARY):$(BOOT_SOURCE)
 
 $(KERNEL_BINARY):$(S_OBJECT) $(C_OBJECT)
 	$(LD) $(LD_FLAGS) -T $(LD_FILE) $^ -o $@
+	$(LD) $(LD_FLAGS) -oelf32-i386 -T $(LD_OBJ_FILE) $^ -r -o ./build/kernel.o
 
 $(BOOT_IMG):$(BOOT_BINARY)
 	$(DD) if=$< of=$@ bs=512 count=2880
@@ -47,6 +50,9 @@ creat_img:$(BOOT_IMG) $(KERNEL_BINARY)
 
 run:
 	qemu -fda $(BOOT_IMG) -boot a
+
+debug:
+	qemu -s -S -fda $(BOOT_IMG) -boot a
 
 clear:
 	rm $(C_OBJECT) $(S_OBJECT) $(BOOT_BINARY) $(BOOT_IMG) $(KERNEL_BINARY)

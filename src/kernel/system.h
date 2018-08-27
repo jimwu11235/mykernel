@@ -10,7 +10,15 @@ struct regs
     unsigned int eip, cs, eflags, useresp, ss;   /* pushed by the processor automatically */ 
 };
 
-/* MAIN.C */
+/* DEBUG.C */
+typedef __builtin_va_list va_list;
+#define va_start(ap, last)  (__builtin_va_start(ap, last))
+#define va_arg(ap, type)    (__builtin_va_arg(ap, type))
+#define va_end(ap)
+
+extern void printk(const char *fmt, ...);
+
+/* STRING.C */
 extern unsigned char *memcpy(unsigned char *dest, const unsigned char *src, int count);
 extern unsigned char *memset(unsigned char *dest, unsigned char val, int count);
 extern unsigned short *memsetw(unsigned short *dest, unsigned short val, int count);
