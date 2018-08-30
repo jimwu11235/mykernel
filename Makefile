@@ -55,4 +55,4 @@ debug:
 	qemu -s -S -fda $(BOOT_IMG) -boot a
 
 clear:
-	rm $(C_OBJECT) $(S_OBJECT) $(BOOT_BINARY) $(BOOT_IMG) $(KERNEL_BINARY)
+	rm $(C_OBJECT) $(S_OBJECT) $(BOOT_BINARY) $(BOOT_IMG) $(KERNEL_BINARY) ./build/kernel.o

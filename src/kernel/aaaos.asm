@@ -10,11 +10,13 @@
 ; AOUT kludge - must be physical addresses. Make a note of these:
 ; The linker script fills in the data for these ones!
 ALIGN 4
-        EXTERN code, bss, end
-        dd code
-        dd bss
-        dd end
+        extern kernel_start, kernel_end
+        global address_data
+address_data:
+        dd kernel_start
+        dd kernel_end
         dd start
+        dd 0x00000000
 [BITS 32]
 [SECTION .text]
 global start
@@ -39,12 +41,6 @@ start:
 stublet:
         extern main
         call main
-
-global outport8
-outport8:
-        MOV     AL, 0x10
-        OUT     0x20, AL
-        ret
 
 ; This will set up our new segment registers. We need to do
 ; something special in order to set CS. We do what is called a

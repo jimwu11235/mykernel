@@ -109,7 +109,7 @@ next:
     mov     SS, AX
 
 ; Jump to os
-    ; mov     DWORD EAX, [0x00100004]
+    ; mov     DWORD EAX, [0x0010000C]
     jmp     DWORD 1*8:0x00100010
 
 waitkbdout:

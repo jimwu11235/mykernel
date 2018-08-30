@@ -1,6 +1,8 @@
 #ifndef __SYSTEM_H
 #define __SYSTEM_H
 
+#include "asmfunc.h"
+
 /* This defines what the stack looks like after an ISR was running */
 struct regs
 {
@@ -50,10 +52,24 @@ extern void irq_uninstall_handler(int irq);
 extern void irq_install();
 
 /* TIMER.C */
+extern void timer_phase(int hz);
 extern void timer_wait(int ticks);
 extern void timer_install();
 
 /* KEYBOARD.C */
 extern void keyboard_install();
+
+/* MEMORY.C */
+typedef struct _ADDRESS_DATA_STRUCT
+{
+    unsigned int kernel_start;
+    unsigned int kernel_end;
+    unsigned int start_entry;
+    unsigned int rsvd;
+}ADDRESS_DATA_STRUCT;
+extern ADDRESS_DATA_STRUCT address_data;
+extern unsigned int kernel_start;
+extern unsigned int kernel_end;
+extern unsigned int memtest(unsigned int start, unsigned int end);
 
 #endif

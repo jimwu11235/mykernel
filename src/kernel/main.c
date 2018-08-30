@@ -19,7 +19,6 @@ void outportb (unsigned short _port, unsigned char _data)
     __asm__ __volatile__ ("outb %1, %0" : : "dN" (_port), "a" (_data));
 }
 
-extern void outport8();
 /* This is a very simple main() function. All it does is sit in an
 *  infinite loop. This will be like our 'idle' loop */
 void main()
@@ -36,13 +35,14 @@ void main()
     init_video();
 
     __asm__ __volatile__ ("sti");
-    outportb(0x21, 0xfd);
+    outportb(0x21, 0xf0);
     outportb(0xA1, 0xff);
 
     puts(text);
     int a = -999999999;
     int b = 123;
-    printk("a = %d  b = %d", a, b);
+    printk("a = %d  b = %d  c = %c", a, b, 'A');
+    memtest(0, 0);
     /* ...and leave this loop in. There is an endless loop in
     *  'start.asm' also, if you accidentally delete this next line */
     for (;;);
