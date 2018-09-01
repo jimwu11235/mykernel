@@ -7,6 +7,7 @@ unsigned int memtest(unsigned int start, unsigned int end)
 {
     int eflags, cr0;
     int flg486 = 0;
+    unsigned int memnum;
 
     /* Check CPU version (386 or 486) */
     eflags = io_load_eflags();
@@ -28,6 +29,8 @@ unsigned int memtest(unsigned int start, unsigned int end)
         store_cr0(cr0);
     }
 
+    memnum = memtest_asm(address_data.kernel_end, 0xffffffff);
+
     if(flg486)
     {
         cr0 = load_cr0();
@@ -41,7 +44,7 @@ unsigned int memtest(unsigned int start, unsigned int end)
     printk("\nkernel_start = %x", address_data.kernel_start);
     printk("\nkernel_end = %x", address_data.kernel_end);
     printk("\nstart_entry = %x", address_data.start_entry);
-    printk("\naaa = %b", 0xFFFFFFFF);
+    printk("\nmemnum = %dMB", memnum / (1024 * 1024));
 
     return eflags;
 }

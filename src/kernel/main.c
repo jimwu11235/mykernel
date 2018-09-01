@@ -43,6 +43,7 @@ void main()
     int b = 123;
     printk("a = %d  b = %d  c = %c", a, b, 'A');
     memtest(0, 0);
+    cmd_dir();
     /* ...and leave this loop in. There is an endless loop in
     *  'start.asm' also, if you accidentally delete this next line */
     for (;;);

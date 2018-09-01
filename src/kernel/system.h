@@ -72,4 +72,15 @@ extern unsigned int kernel_start;
 extern unsigned int kernel_end;
 extern unsigned int memtest(unsigned int start, unsigned int end);
 
+/* FILESYSTEM.C */
+typedef struct _FILEINFO_STRUCT
+{
+    unsigned int rsvd0[8];
+    unsigned char name[8], ext[3], type;
+    unsigned char rsvd1[10];
+    unsigned short time, date, clustno;
+    unsigned int size;
+}FILEINFO_STRUCT;
+extern void cmd_dir();
+
 #endif

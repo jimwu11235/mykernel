@@ -1,8 +1,7 @@
 ENTRY(start)
-phys = 0x00100000;
 SECTIONS
 {
-  . = 0x100000;
+  . = 0x280000;
 
   PROVIDE(kernel_start = .);
   .text :

@@ -1,42 +1,29 @@
-; Boot info
-; CYLS    EQU     0x0FF0
-; LEDS    EQU     0x0FF1
-; VMODE   EQU     0x0FF2
-; SCRNX   EQU     0x0FF3
-; SCRNY   EQU     0x0FF4
-; VRAM    EQU     0x0FF8
-
-        ; ORG     0xC400
-; AOUT kludge - must be physical addresses. Make a note of these:
-; The linker script fills in the data for these ones!
-ALIGN 4
-        extern kernel_start, kernel_end
-        global address_data
-address_data:
-        dd kernel_start
-        dd kernel_end
-        dd start
-        dd 0x00000000
-[BITS 32]
 [SECTION .text]
 global start
 start:
-        mov esp, _sys_stack     ; This points the stack to our new stack area
-        jmp stublet
-        ; MOV     AL, 0x03
-        ; MOV     AH, 0x00
-        ; INT     0x10
-;         MOV     BYTE [VMODE], 8
-;         MOV     WORD [SCRNX], 320
-;         MOV     WORD [SCRNY], 200
-;         MOV     DWORD [VRAM], 0x000A0000
+        ; Move boot floppy to the memery after 1MB
+        mov     esi, 0x7C00
+        mov     edi, 0x100000
+        mov     ecx, 512
+        call    memcpy
 
-; ; Status of keyboard LED
+        mov     esi, 0x8200
+        mov     edi, 0x100200
+        mov     ecx, 512*18*2
+        sub     ecx, 512
+        call    memcpy
 
-;         MOV     AH, 0x02
-;         INT     0x16        ; Keyboard BIOS
-;         MOV     [LEDS], AL
+        mov     esp, _sys_stack     ; This points the stack to our new stack area
+        jmp     stublet
 
+memcpy:
+        mov     eax, [esi]
+        add     esi, 4
+        mov     [edi], eax
+        add     edi, 4
+        sub     ecx, 4
+        jnz     memcpy
+        ret
 
 stublet:
         extern main
@@ -56,7 +43,6 @@ gdt_flush:
     mov fs, ax
     mov gs, ax
     mov ss, ax
-    ; ret
     jmp 0x08:flush2   ; 0x08 is the offset to our code segment: Far jump!
 flush2:
     ret               ; Returns back to the C code!
@@ -512,6 +498,15 @@ irq_common_stub:
     popa
     add esp, 8
     iret
+
+[SECTION .data]
+        extern kernel_start, kernel_end
+        global address_data
+address_data:
+        dd kernel_start
+        dd kernel_end
+        dd start
+        dd 0x00000000
 
 ; Here is the definition of our BSS section. Right now, we'll use
 ; it just to store the stack. Remember that a stack actually grows

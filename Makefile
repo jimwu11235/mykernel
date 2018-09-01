@@ -38,13 +38,18 @@ $(KERNEL_BINARY):$(S_OBJECT) $(C_OBJECT)
 	$(LD) $(LD_FLAGS) -oelf32-i386 -T $(LD_OBJ_FILE) $^ -r -o ./build/kernel.o
 
 $(BOOT_IMG):$(BOOT_BINARY)
-	$(DD) if=$< of=$@ bs=512 count=2880
+	# $(DD) if=$< of=$@ bs=512 count=2880
+	$(DD) if=/dev/zero of=$@ bs=512 count=2880
+	mkfs.vfat -F12 $@
+	./tools/makeimg $< $@
 
 creat_img:$(BOOT_IMG) $(KERNEL_BINARY)
 	sudo mkdir ./build/fd
 	sudo mount -o loop $(BOOT_IMG) ./build/fd
 	sleep 1
 	sudo cp $(KERNEL_BINARY) ./build/fd
+	sudo cp ./build/kernel.o ./build/fd
+	sudo cp ./build/aaaos.o ./build/fd
 	sudo umount ./build/fd
 	sudo rm -r ./build/fd
 

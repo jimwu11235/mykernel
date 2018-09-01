@@ -6,4 +6,6 @@ extern void io_store_eflags(int eflags);
 extern int load_cr0(void);
 extern void store_cr0(int cr0);
 
+extern unsigned int memtest_asm(unsigned int start, unsigned int end);
+
 #endif

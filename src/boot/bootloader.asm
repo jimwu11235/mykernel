@@ -26,95 +26,123 @@ CYLS    EQU     10
 ; Program start
 
 entry:
-    mov     AX, 0           ; Init register
-    mov     SS, AX
+    mov     ax, 0           ; Init register
+    mov     ss, ax
     mov     SP, 0x7C00
-    mov     DS, AX
+    mov     ds, ax
+
+;     mov     cl, 8
+;     mov     ch, 0
+; putloop2:
+;     sub     cl, 1
+;     add     ch, 1
+;     cmp     ch, 8
+;     ja      fin2
+;     mov     al, dl
+;     mov     ah, 1
+;     sal     ah, cl
+;     and     al, ah
+;     cmp     al, 0
+;     je      put0
+;     mov     al, 0x31
+;     mov     ah, 0x0E        ; Show one character
+;     mov     bx, 15          ; Set font color
+;     int     0x10            ; Call VGA BIOS
+;     ; jmp     fin2
+;     jmp     putloop2
+; put0:
+;     mov     al, 0x30
+;     mov     ah, 0x0E        ; Show one character
+;     mov     bx, 15          ; Set font color
+;     int     0x10            ; Call VGA BIOS
+;     ; jmp     fin2
+;     jmp     putloop2
+; fin2:
+;     jmp fin2
 
 ; Load floppy disk
 
-    mov     AX, 0x0820
-    mov     ES, AX
-    mov     CH, 0           ; Cylinder 0
-    mov     DH, 0           ; Head 0
-    mov     CL, 2           ; Sector 2
+    mov     ax, 0x0820
+    mov     es, ax
+    mov     ch, 0           ; Cylinder 0
+    mov     dh, 0           ; Head 0
+    mov     cl, 2           ; Sector 2
 readloop:
-    mov     SI, 0           ; Record number of fail
+    mov     si, 0           ; Record number of fail
 retry:
-    mov     AH, 0x02        ; Read disk cmd
-    mov     AL, 1           ; Read 1 sector
-    mov     BX, 0
-    mov     DL, 0x00        ; Driver A
+    mov     ah, 0x02        ; Read disk cmd
+    mov     al, 1           ; Read 1 sector
+    mov     bx, 0
+    mov     dl, 0x00        ; Driver A
     int     0x13            ; Call disk driver BIOS
     jnc     next             ; Successful
-    add     SI, 1
-    cmp     SI, 5
+    add     si, 1
+    cmp     si, 5
     jae     error
-    mov     AH, 0x00
-    mov     DL, 0x00
+    mov     ah, 0x00
+    mov     dl, 0x00
     int     0x13            ; Driver reset
     jmp     retry
 next:
-    mov     AX, ES          ; address add 0x200
-    add     AX, 0x0020
-    mov     ES, AX
-    add     CL, 1           ; Load next sector
-    cmp     CL, 18
-    jbe     readloop        ; Jump when CL <=18
-    mov     CL, 1
-    add     DH, 1
-    cmp     DH, 2
+    mov     ax, es          ; address add 0x200
+    add     ax, 0x0020
+    mov     es, ax
+    add     cl, 1           ; Load next sector
+    cmp     cl, 18
+    jbe     readloop        ; Jump when cl <=18
+    mov     cl, 1
+    add     dh, 1
+    cmp     dh, 2
     jb      readloop
-    mov     DH, 0
-    add     CH, 1
-    cmp     CH, CYLS
-    jb      readloop        ; Jump when CH < CYLS
+    mov     dh, 0
+    add     ch, 1
+    cmp     ch, CYLS
+    jb      readloop        ; Jump when ch < CYLS
 
 ; Turn-off PIC interrupt
-    mov     AL, 0xFF
-    out     0x21, AL
+    mov     al, 0xFF
+    out     0x21, al
     nop
-    out     0xA1, AL
+    out     0xA1, al
 
     cli                 ; Turn-off cli interrupt
 
 ; Turn-on A20 gate
     call    waitkbdout
-    mov     AL, 0xD1
-    out     0x64, AL
+    mov     al, 0xD1
+    out     0x64, al
     call    waitkbdout
-    mov     AL, 0xDF
-    out     0x60, AL
+    mov     al, 0xDF
+    out     0x60, al
     call    waitkbdout
-
-; move code to the memery ater 1MB
-    mov     esi, 0xc400
-    mov     edi, 0x100000
-    mov     ecx, 10*1024
-    call    memcpy
 
 ; Jump to protect mode
     lgdt    [GDTR0]
-    mov     EAX, CR0
-    and     EAX, 0x7FFFFFFF
-    or      EAX, 0x00000001
-    mov     CR0, EAX
-;     jmp     pipelineflush
-; pipelineflush:
-    mov     AX, 2*8
-    mov     DS, AX
-    mov     ES, AX
-    mov     FS, AX
-    mov     GS, AX
-    mov     SS, AX
+    mov     eax, cr0
+    and     eax, 0x7FFFFFFF
+    or      eax, 0x00000001
+    mov     cr0, eax
+    jmp     pipelineflush
+pipelineflush:
+    mov     ax, 2*8
+    mov     ds, ax
+    mov     es, ax
+    mov     fs, ax
+    mov     gs, ax
+    mov     ss, ax
+
+; move code to the memery after 1MB(must operate after entering protection mode)
+    mov     esi, 0xc400
+    mov     edi, 0x280000
+    mov     ecx, 512*1024
+    call    memcpy
 
 ; Jump to os
-    ; mov     DWORD EAX, [0x0010000C]
-    jmp     DWORD 1*8:0x00100010
+    jmp     DWORD 1*8:0x00280000
 
 waitkbdout:
-    in      AL, 0x64
-    and     AL, 0x02
+    in      al, 0x64
+    and     al, 0x02
     jnz     waitkbdout
     ret
 
@@ -137,14 +165,14 @@ GDTR0:
     DD      GDT0
 
 error:
-    mov     SI, msg
+    mov     si, msg
 putloop:
-    mov     AL, [SI]
-    add     SI, 1
-    cmp     AL, 0
+    mov     al, [si]
+    add     si, 1
+    cmp     al, 0
     je      fin
-    mov     AH, 0x0E        ; Show one character
-    mov     BX, 15          ; Set font color
+    mov     ah, 0x0E        ; Show one character
+    mov     bx, 15          ; Set font color
     int     0x10            ; Call VGA BIOS
     jmp     putloop
 fin:
