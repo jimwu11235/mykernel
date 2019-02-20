@@ -48,8 +48,9 @@ creat_img:$(BOOT_IMG) $(KERNEL_BINARY)
 	sudo mount -o loop $(BOOT_IMG) ./build/fd
 	sleep 1
 	sudo cp $(KERNEL_BINARY) ./build/fd
-	sudo cp ./build/kernel.o ./build/fd
-	sudo cp ./build/aaaos.o ./build/fd
+	# sudo cp ./build/kernel.o ./build/fd
+	# sudo cp ./build/aaaos.o ./build/fd
+	sudo cp ./build/aaa.txt ./build/fd
 	sudo umount ./build/fd
 	sudo rm -r ./build/fd
 

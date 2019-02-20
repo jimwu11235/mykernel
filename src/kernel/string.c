@@ -1,30 +1,30 @@
 #include "system.h"
 
-unsigned char *memcpy(unsigned char *dest, const unsigned char *src, int count)
+u8 *memcpy(u8 *dest, const u8 *src, s32 count)
 {
-    const char *sp = (const char *)src;
-    char *dp = (char *)dest;
+    const u8 *sp = (const u8 *)src;
+    u8 *dp = (u8 *)dest;
     for(; count != 0; count--) *dp++ = *sp++;
     return dest;
 }
 
-unsigned char *memset(unsigned char *dest, unsigned char val, int count)
+u8 *memset(u8 *dest, u8 val, s32 count)
 {
-    char *temp = (char *)dest;
+    u8 *temp = (u8 *)dest;
     for( ; count != 0; count--) *temp++ = val;
     return dest;
 }
 
-unsigned short *memsetw(unsigned short *dest, unsigned short val, int count)
+u16 *memsetw(u16 *dest, u16 val, s32 count)
 {
-    unsigned short *temp = (unsigned short *)dest;
+    u16 *temp = (u16 *)dest;
     for( ; count != 0; count--) *temp++ = val;
     return dest;
 }
 
-int strlen(const char *str)
+s32 strlen(const u8 *str)
 {
-    int retval;
+    s32 retval;
     for(retval = 0; *str != '\0'; str++) retval++;
     return retval;
 }

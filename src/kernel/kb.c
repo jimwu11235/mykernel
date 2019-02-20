@@ -5,7 +5,7 @@
 *  comments in to give you an idea of what key is what, even
 *  though I set it's array index to 0. You can change that to
 *  whatever you want using a macro, if you wish! */
-unsigned char kbdus[128] =
+u8 kbdus[128] =
 {
     0,  27, '1', '2', '3', '4', '5', '6', '7', '8',	/* 9 */
   '9', '0', '-', '=', '\b',	/* Backspace */
@@ -44,6 +44,7 @@ unsigned char kbdus[128] =
     0,	/* F12 Key */
     0,	/* All other keys are undefined */
 };
+static FIFO32_STRUCT *keyfifo;
 
 /* Handles the keyboard interrupt */
 void keyboard_handler(struct regs *r)
@@ -74,12 +75,14 @@ void keyboard_handler(struct regs *r)
         *  to the above layout to correspond to 'shift' being
         *  held. If shift is held using the larger lookup table,
         *  you would add 128 to the scancode when you look for it */
-        putch(kbdus[scancode]);
+        // putch(kbdus[scancode]);
+        fifo32_put(keyfifo, kbdus[scancode]);
     }
 }
 
 /* Installs the keyboard handler into IRQ1 */
-void keyboard_install()
+void keyboard_install(FIFO32_STRUCT *fifo)
 {
     irq_install_handler(1, keyboard_handler);
+    keyfifo = fifo;
 }

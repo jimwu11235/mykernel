@@ -24,6 +24,10 @@ void outportb (unsigned short _port, unsigned char _data)
 void main()
 {
     /* You would add commands after here */
+    FIFO32_STRUCT *fifo;
+    s32 fifobuf[128];
+    s32 fifodata;
+
     unsigned char text[] = "Hello World!\n";
 
     gdt_install();
@@ -31,7 +35,10 @@ void main()
     isrs_install();
     irq_install();
     timer_install();
-    keyboard_install();
+
+    fifo32_init(fifo, 128, fifobuf);
+
+    keyboard_install(fifo);
     init_video();
 
     __asm__ __volatile__ ("sti");
@@ -39,12 +46,17 @@ void main()
     outportb(0xA1, 0xff);
 
     puts(text);
-    int a = -999999999;
-    int b = 123;
-    printk("a = %d  b = %d  c = %c", a, b, 'A');
     memtest(0, 0);
     cmd_dir();
+    cmd_cat("aaa     .txt");
     /* ...and leave this loop in. There is an endless loop in
     *  'start.asm' also, if you accidentally delete this next line */
-    for (;;);
+    for (;;)
+    {
+        if(fifo32_status(fifo) != 0)
+        {
+            fifodata = fifo32_get(fifo);
+            putch((u8)fifodata);
+        }
+    }
 }

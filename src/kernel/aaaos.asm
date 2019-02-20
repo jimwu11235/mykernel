@@ -9,7 +9,7 @@ start:
 
         mov     esi, 0x8200
         mov     edi, 0x100200
-        mov     ecx, 512*18*2
+        mov     ecx, 512*18*10
         sub     ecx, 512
         call    memcpy
 

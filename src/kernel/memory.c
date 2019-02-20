@@ -3,11 +3,11 @@
 #define EFLAGS_AC_BIT       0x00040000
 #define CR0_CACHE_DISABLE   0x60000000
 
-unsigned int memtest(unsigned int start, unsigned int end)
+u32 memtest(u32 start, u32 end)
 {
-    int eflags, cr0;
-    int flg486 = 0;
-    unsigned int memnum;
+    u32 eflags, cr0;
+    u8 flg486 = 0;
+    u32 memnum;
 
     /* Check CPU version (386 or 486) */
     eflags = io_load_eflags();
@@ -38,9 +38,6 @@ unsigned int memtest(unsigned int start, unsigned int end)
         store_cr0(cr0);
     }
 
-    printk("\nkernel_start = %d", address_data.kernel_start);
-    printk("\nkernel_end = %d", address_data.kernel_end);
-    printk("\nstart_entry = %d", address_data.start_entry);
     printk("\nkernel_start = %x", address_data.kernel_start);
     printk("\nkernel_end = %x", address_data.kernel_end);
     printk("\nstart_entry = %x", address_data.start_entry);

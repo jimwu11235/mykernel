@@ -9,6 +9,7 @@ void printk(const char *fmt, ...)
     unsigned int x, x_temp;
     int zero_flag;
     char c;
+    unsigned char *s;
     
     va_start(ap, fmt);
     while(*fmt)
@@ -91,10 +92,17 @@ void printk(const char *fmt, ...)
                     c = va_arg(ap, int);
                     putch(c);
                     break;
+
+                /* Print string */
+                case 's':
+                    s = va_arg(ap, int);
+                    puts(s);
+                    break;
                     
                 default:
                     c = *fmt;
                     putch(c);
+                    break;
             }
         }
         else
