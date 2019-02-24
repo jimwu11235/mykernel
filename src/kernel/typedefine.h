@@ -2,13 +2,13 @@
 #define _TYPEDEFINE_H
 
 /* Unsigned integer */
-typedef unsigned char   u8;
-typedef unsigned short  u16;
-typedef unsigned int    u32;
+typedef unsigned char   t_U8;
+typedef unsigned short  t_U16;
+typedef unsigned int    t_U32;
 
 /* Signed integer */
-typedef char    s8;
-typedef short   s16;
-typedef int     s32;
+typedef char    t_S8;
+typedef short   t_S16;
+typedef int     t_S32;
 
 #endif

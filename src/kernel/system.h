@@ -4,29 +4,39 @@
 #include "typedefine.h"
 #include "asmfunc.h"
 
-/* This defines what the stack looks like after an ISR was running */
-struct regs
+/* SYSTEM */
+struct regs /* This defines what the stack looks like after an ISR was running */
 {
-    unsigned int gs, fs, es, ds;      /* pushed the segs last */
-    unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;  /* pushed by 'pusha' */
-    unsigned int int_no, err_code;    /* our 'push byte #' and ecodes do this */
-    unsigned int eip, cs, eflags, useresp, ss;   /* pushed by the processor automatically */ 
+    t_U32 gs, fs, es, ds;      /* pushed the segs last */
+    t_U32 edi, esi, ebp, esp, ebx, edx, ecx, eax;  /* pushed by 'pusha' */
+    t_U32 int_no, err_code;    /* our 'push byte #' and ecodes do this */
+    t_U32 eip, cs, eflags, useresp, ss;   /* pushed by the processor automatically */ 
 };
+
+typedef struct _ADDRESS_DATA_STRUCT
+{
+    t_U32 kernel_start;
+    t_U32 kernel_end;
+    t_U32 start_entry;
+    t_U32 rsvd;
+} ADDRESS_DATA_STRUCT;
+
+extern ADDRESS_DATA_STRUCT address_data;
 
 /* FIFO32.C */
 typedef struct _FIFO32_STRUCT
 {
-    s32 *buf;
-    u32 write_entry;
-    u32 read_entry;
-    u32 size;
-    u32 free;
-    u8  flags;
+    t_S32 *buf;
+    t_U32 write_entry;
+    t_U32 read_entry;
+    t_U32 size;
+    t_U32 free;
+    t_U8  flags;
 }FIFO32_STRUCT;
-extern void fifo32_init(FIFO32_STRUCT *fifo, u32 size, s32 *buf);
-extern s8 fifo32_put(FIFO32_STRUCT *fifo, s32 data);
-extern s32 fifo32_get(FIFO32_STRUCT *fifo);
-extern u32 fifo32_status(FIFO32_STRUCT *fifo);
+extern void fifo32_init(FIFO32_STRUCT *fifo, t_U32 size, t_S32 *buf);
+extern t_S8 fifo32_put(FIFO32_STRUCT *fifo, t_S32 data);
+extern t_S32 fifo32_get(FIFO32_STRUCT *fifo);
+extern t_U32 fifo32_status(FIFO32_STRUCT *fifo);
 
 /* DEBUG.C */
 typedef __builtin_va_list va_list;
@@ -37,18 +47,18 @@ typedef __builtin_va_list va_list;
 extern void printk(const char *fmt, ...);
 
 /* STRING.C */
-extern u8 *memcpy(u8 *dest, const u8 *src, s32 count);
-extern u8 *memset(u8 *dest, u8 val, s32 count);
-extern u16 *memsetw(u16 *dest, u16 val, s32 count);
-extern s32 strlen(const u8 *str);
-extern u8 inportb (u16 _port);
-extern void outportb (u16 _port, u8 _data);
+extern t_U8 *memcpy(t_U8 *dest, const t_U8 *src, t_S32 count);
+extern t_U8 *memset(t_U8 *dest, t_U8 val, t_S32 count);
+extern t_U16 *memsetw(t_U16 *dest, t_U16 val, t_S32 count);
+extern t_S32 strlen(const t_U8 *str);
+extern t_U8 inportb (t_U16 _port);
+extern void outportb (t_U16 _port, t_U8 _data);
 
 /* SCRN.C */
 extern void cls();
-extern void putch(u8 c);
-extern void puts(u8 *str);
-extern void settextcolor(u8 forecolor, u8 backcolor);
+extern void putch(t_U8 c);
+extern void puts(t_U8 *str);
+extern void settextcolor(t_U8 forecolor, t_U8 backcolor);
 extern void init_video();
 
 /* GDT.C */
@@ -76,26 +86,40 @@ extern void timer_install();
 extern void keyboard_install(FIFO32_STRUCT *fifo);
 
 /* MEMORY.C */
-typedef struct _ADDRESS_DATA_STRUCT
+#define DEF_FREE_MEMORY_POOL_SIZE 4096
+typedef struct _t_St_MemoryInfo
 {
-    u32 kernel_start;
-    u32 kernel_end;
-    u32 start_entry;
-    u32 rsvd;
-}ADDRESS_DATA_STRUCT;
-extern ADDRESS_DATA_STRUCT address_data;
-extern u32 memtest(u32 start, u32 end);
+    t_U32 v_U32_Address;
+    t_U32 v_U32_Size;
+} t_St_MemoryInfo;
+
+typedef struct _t_St_MemoryMan
+{
+    t_U32           v_U32_CurrentFreeNum;
+    t_U32           v_U32_MaxFreeNum;
+    t_U32           v_U32_LostSize;
+    t_U32           v_U32_LostNum;
+    t_St_MemoryInfo v_PtSt_FreeMemoryPool[DEF_FREE_MEMORY_POOL_SIZE];
+} t_St_MemoryMan;
+
+extern t_U32 f_U32_MemoryTest(t_U32 v_U32_StartAddress, t_U32 v_U32_EndAddress);
+extern void f_Vd_MemoryManInit(t_St_MemoryMan *v_PtSt_MemoryMan);
+extern t_U32 f_U32_GetFreeMemorySize(t_St_MemoryMan *v_PtSt_MemoryMan);
+extern t_U32 f_U32_MemoryAlloc(t_St_MemoryMan *v_PtSt_MemoryMan, t_U32 v_U32_MemorySize);
+extern t_U32 f_U32_MemoryAlloc4k(t_St_MemoryMan *v_PtSt_MemoryMan, t_U32 v_U32_MemorySize);
+extern t_S8 f_S8_MemoryFree(t_St_MemoryMan *v_PtSt_MemoryMan, t_U32 v_U32_MemoryAddress, t_U32 v_U32_MemorySize);
+extern t_S8 f_S8_MemoryFree4k(t_St_MemoryMan *v_PtSt_MemoryMan, t_U32 v_U32_MemoryAddress, t_U32 v_U32_MemorySize);
 
 /* FILESYSTEM.C */
 typedef struct _FILEINFO_STRUCT
 {
-    u32 rsvd0[8];
-    u8 name[8], ext[3], type;
-    u8 rsvd1[10];
-    u16 time, date, clustno;
-    u32 size;
+    t_U32 rsvd0[8];
+    t_U8 name[8], ext[3], type;
+    t_U8 rsvd1[10];
+    t_U16 time, date, clustno;
+    t_U32 size;
 }FILEINFO_STRUCT;
 extern void cmd_dir();
-extern void cmd_cat(u8 *filename);
+extern void cmd_cat(t_U8 *filename);
 
 #endif

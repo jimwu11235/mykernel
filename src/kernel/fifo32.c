@@ -1,6 +1,6 @@
 #include "system.h"
 
-void fifo32_init(FIFO32_STRUCT *fifo, u32 size, s32 *buf)
+void fifo32_init(FIFO32_STRUCT *fifo, t_U32 size, t_S32 *buf)
 {
     fifo->size = size;
     fifo->buf = buf;
@@ -10,7 +10,7 @@ void fifo32_init(FIFO32_STRUCT *fifo, u32 size, s32 *buf)
     fifo->read_entry = 0;
 }
 
-s8 fifo32_put(FIFO32_STRUCT *fifo, s32 data)
+t_S8 fifo32_put(FIFO32_STRUCT *fifo, t_S32 data)
 {
     if(fifo->free == 0)
     {
@@ -28,9 +28,9 @@ s8 fifo32_put(FIFO32_STRUCT *fifo, s32 data)
     return 0;
 }
 
-s32 fifo32_get(FIFO32_STRUCT *fifo)
+t_S32 fifo32_get(FIFO32_STRUCT *fifo)
 {
-    s32 data;
+    t_S32 data;
     if(fifo->free == fifo->size)
     {
         return -1;
@@ -46,7 +46,7 @@ s32 fifo32_get(FIFO32_STRUCT *fifo)
     return data;
 }
 
-u32 fifo32_status(FIFO32_STRUCT *fifo)
+t_U32 fifo32_status(FIFO32_STRUCT *fifo)
 {
     return fifo->size - fifo->free;
 }

@@ -1,30 +1,30 @@
 #include "system.h"
 
-u8 *memcpy(u8 *dest, const u8 *src, s32 count)
+t_U8 *memcpy(t_U8 *dest, const t_U8 *src, t_S32 count)
 {
-    const u8 *sp = (const u8 *)src;
-    u8 *dp = (u8 *)dest;
+    const t_U8 *sp = (const t_U8 *)src;
+    t_U8 *dp = (t_U8 *)dest;
     for(; count != 0; count--) *dp++ = *sp++;
     return dest;
 }
 
-u8 *memset(u8 *dest, u8 val, s32 count)
+t_U8 *memset(t_U8 *dest, t_U8 val, t_S32 count)
 {
-    u8 *temp = (u8 *)dest;
+    t_U8 *temp = (t_U8 *)dest;
     for( ; count != 0; count--) *temp++ = val;
     return dest;
 }
 
-u16 *memsetw(u16 *dest, u16 val, s32 count)
+t_U16 *memsetw(t_U16 *dest, t_U16 val, t_S32 count)
 {
-    u16 *temp = (u16 *)dest;
+    t_U16 *temp = (t_U16 *)dest;
     for( ; count != 0; count--) *temp++ = val;
     return dest;
 }
 
-s32 strlen(const u8 *str)
+t_S32 strlen(const t_U8 *str)
 {
-    s32 retval;
+    t_S32 retval;
     for(retval = 0; *str != '\0'; str++) retval++;
     return retval;
 }

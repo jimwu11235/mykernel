@@ -43,7 +43,7 @@ $(BOOT_IMG):$(BOOT_BINARY)
 	mkfs.vfat -F12 $@
 	./tools/makeimg $< $@
 
-creat_img:$(BOOT_IMG) $(KERNEL_BINARY)
+build:$(BOOT_IMG) $(KERNEL_BINARY)
 	sudo mkdir ./build/fd
 	sudo mount -o loop $(BOOT_IMG) ./build/fd
 	sleep 1
@@ -62,3 +62,7 @@ debug:
 
 clear:
 	rm $(C_OBJECT) $(S_OBJECT) $(BOOT_BINARY) $(BOOT_IMG) $(KERNEL_BINARY) ./build/kernel.o
+
+rebuild:
+	make clear
+	make build

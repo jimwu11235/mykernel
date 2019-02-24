@@ -2,14 +2,14 @@
 
 /* These define our textpointer, our background and foreground
 *  colors (attributes), and x and y cursor coordinates */
-u16 *textmemptr;
-u16 attrib = 0x0F;
-s32 csr_x = 0, csr_y = 0;
+t_U16 *textmemptr;
+t_U16 attrib = 0x0F;
+t_S32 csr_x = 0, csr_y = 0;
 
 /* Scrolls the screen */
 void scroll(void)
 {
-    u16 blank, temp;
+    t_U16 blank, temp;
 
     /* A blank is defined as a space... we need to give it
     *  backcolor too */
@@ -34,7 +34,7 @@ void scroll(void)
 *  on the screen under the last character pressed! */
 void move_csr(void)
 {
-    u16 temp;
+    t_U16 temp;
 
     /* The equation for finding the index in a linear
     *  chunk of memory can be represented by:
@@ -57,8 +57,8 @@ void move_csr(void)
 /* Clears the screen */
 void cls()
 {
-    u16 blank;
-    s32 i;
+    t_U16 blank;
+    t_S32 i;
 
     /* Again, we need the 'short' that will be used to
     *  represent a space with color */
@@ -77,10 +77,10 @@ void cls()
 }
 
 /* Puts a single character on the screen */
-void putch(u8 c)
+void putch(t_U8 c)
 {
-    u16 *where;
-    u16 att = attrib << 8;
+    t_U16 *where;
+    t_U16 att = attrib << 8;
 
     /* Handle a backspace, by moving the cursor back one space */
     if(c == 0x08)
@@ -132,9 +132,9 @@ void putch(u8 c)
 }
 
 /* Uses the above routine to output a string... */
-void puts(u8 *text)
+void puts(t_U8 *text)
 {
-    s32 i;
+    t_S32 i;
 
     for (i = 0; i < strlen(text); i++)
     {
@@ -143,7 +143,7 @@ void puts(u8 *text)
 }
 
 /* Sets the forecolor and backcolor that we will use */
-void settextcolor(u8 forecolor, u8 backcolor)
+void settextcolor(t_U8 forecolor, t_U8 backcolor)
 {
     /* Top 4 bytes are the background, bottom 4 bytes
     *  are the foreground color */
@@ -153,6 +153,6 @@ void settextcolor(u8 forecolor, u8 backcolor)
 /* Sets our text-mode VGA pointer, then clears the screen for us */
 void init_video(void)
 {
-    textmemptr = (u16 *)0xB8000;
+    textmemptr = (t_U16 *)0xB8000;
     cls();
 }

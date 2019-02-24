@@ -3,8 +3,8 @@
 void cmd_dir()
 {
     FILEINFO_STRUCT *finfo = (FILEINFO_STRUCT *)(0x100000 + 0x2600);
-    u16 i, j;
-    u8 s[13];
+    t_U16 i, j;
+    t_U8 s[13];
     for(i = 0; i < 224; i++)
     {
         if(finfo[i].name[0] == 0x00)
@@ -32,11 +32,11 @@ void cmd_dir()
     }
 }
 
-void cmd_cat(u8 *filename)
+void cmd_cat(t_U8 *filename)
 {
     FILEINFO_STRUCT *finfo = (FILEINFO_STRUCT *)(0x100000 + 0x2600);
-    u16 i, j;
-    u8 filefounded = 1;
+    t_U16 i, j;
+    t_U8 filefounded = 1;
     for(i = 0; i < 224; i++)
     {
         if(finfo[i].name[0] == 0x00)
@@ -76,7 +76,7 @@ void cmd_cat(u8 *filename)
 
     if(filefounded)
     {
-        u8 *fptr = (u8 *)(0x100000 + 0x3e00 + finfo[i].clustno * 512);
+        t_U8 *fptr = (t_U8 *)(0x100000 + 0x3e00 + finfo[i].clustno * 512);
         printk("\nfile: %s founded.\n", finfo[i].name);
         for(j = 0; j < finfo[i].size; j++)
         {

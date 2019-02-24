@@ -25,10 +25,12 @@ void main()
 {
     /* You would add commands after here */
     FIFO32_STRUCT *fifo;
-    s32 fifobuf[128];
-    s32 fifodata;
+    t_S32 fifobuf[128];
+    t_S32 fifodata;
 
     unsigned char text[] = "Hello World!\n";
+
+    t_St_MemoryMan v_St_MemoryMan;
 
     gdt_install();
     idt_install();
@@ -46,7 +48,17 @@ void main()
     outportb(0xA1, 0xff);
 
     puts(text);
-    memtest(0, 0);
+    printk("\nkernel_start = %x", address_data.kernel_start);
+    printk("\nkernel_end = %x", address_data.kernel_end);
+    printk("\nstart_entry = %x", address_data.start_entry);
+    t_U32 v_U32_TotalMemory = f_U32_MemoryTest(address_data.kernel_end, 0xffffffff);
+    f_Vd_MemoryManInit(&v_St_MemoryMan);
+    f_S8_MemoryFree(&v_St_MemoryMan, address_data.kernel_end, v_U32_TotalMemory);
+    printk("\nFree Memory Size = %dB", f_U32_GetFreeMemorySize(&v_St_MemoryMan));
+    f_U32_MemoryAlloc4k(&v_St_MemoryMan, 0x1);
+    printk("\nFree Memory Size = %dB", f_U32_GetFreeMemorySize(&v_St_MemoryMan));
+    printk("\nFree Memory Size = %dMB", f_U32_GetFreeMemorySize(&v_St_MemoryMan) / (1024 * 1024));
+
     cmd_dir();
     cmd_cat("aaa     .txt");
     /* ...and leave this loop in. There is an endless loop in
@@ -56,7 +68,7 @@ void main()
         if(fifo32_status(fifo) != 0)
         {
             fifodata = fifo32_get(fifo);
-            putch((u8)fifodata);
+            putch((t_U8)fifodata);
         }
     }
 }
