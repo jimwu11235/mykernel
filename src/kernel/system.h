@@ -78,9 +78,41 @@ extern void irq_uninstall_handler(int irq);
 extern void irq_install();
 
 /* TIMER.C */
+#define DEF_TIMER_POOL_SIZE     500
+
+typedef void (*t_PtFn_TimerCallback)(void);
+
+typedef enum _t_En_TimerStatus
+{
+    EN_TIMER_STATUS_FREE,
+    EN_TIMER_STATUS_ALLOC,
+    EN_TIMER_STATUS_USING
+} t_En_TimerStatus;
+
+typedef struct _t_St_TimerInfo
+{
+    struct _t_St_TimerInfo  *v_PtSt_NextTimeoutTimer;
+    t_U32                   v_U32_Timeout;
+    t_En_TimerStatus        v_En_TimerStatus;
+    t_PtFn_TimerCallback    v_PtFn_TimerCallback;
+} t_St_TimerInfo;
+
+typedef struct _t_St_TimerMan
+{
+    t_U32           v_U32_TimeCounter;
+    t_U32           v_U32_NextTimeoutTime;
+    t_St_TimerInfo  *v_PtSt_FirstTimeoutTimer;
+    t_St_TimerInfo  v_PtSt_TimmerPool[DEF_TIMER_POOL_SIZE];
+} t_St_TimerMan;
+
 extern void timer_phase(int hz);
 extern void timer_wait(int ticks);
 extern void timer_install();
+
+extern void f_Vd_TimerAlloc(t_St_TimerInfo **v_PtSt_TimerInfo);
+extern void f_Vd_TimerFree(t_St_TimerInfo *v_PtSt_TimerInfo);
+extern void f_Vd_TimerInit(t_St_TimerInfo *v_PtSt_TimerInfo, t_PtFn_TimerCallback v_PtFnCallback);
+extern void f_Vd_TimerSetting(t_St_TimerInfo *v_PtSt_TimerInfo, t_U32 v_U32_Timeout);
 
 /* KEYBOARD.C */
 extern void keyboard_install(FIFO32_STRUCT *fifo);

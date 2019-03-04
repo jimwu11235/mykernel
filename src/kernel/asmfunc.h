@@ -3,6 +3,8 @@
 
 #include "typedefine.h"
 
+extern void io_cli(void);
+extern void io_sti(void);
 extern t_U32 io_load_eflags(void);
 extern void io_store_eflags(t_U32 eflags);
 extern t_U32 load_cr0(void);

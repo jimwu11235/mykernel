@@ -1,8 +1,16 @@
+GLOBAL io_cli, io_sti
 GLOBAL io_load_eflags, io_store_eflags
 GLOBAL load_cr0, store_cr0
 GLOBAL memtest_asm
 
 [SECTION .text]
+io_cli:             ; void io_cli(void);
+    cli
+    ret
+
+io_sti:             ; void io_sti(void);
+    sti
+    ret
 
 io_load_eflags:     ; int io_load_eflags(void);
     pushfd

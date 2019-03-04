@@ -1,5 +1,28 @@
 #include "system.h"
 
+t_St_TimerInfo *v_PtSt_Timer1;
+t_St_TimerInfo *v_PtSt_Timer2;
+t_St_TimerInfo *v_PtSt_Timer3;
+
+void timerCallback1()
+{
+    printk("\nTimer1 timeout");
+    f_Vd_TimerSetting(v_PtSt_Timer1, 100);
+}
+
+void timerCallback2()
+{
+    printk("\nTimer2 timeout");
+    f_Vd_TimerSetting(v_PtSt_Timer2, 200);
+}
+
+void timerCallback3()
+{
+    printk("\nTimer3 timeout");
+    f_Vd_TimerSetting(v_PtSt_Timer3, 400);
+}
+
+
 /* We will use this later on for reading from the I/O ports to get data
 *  from devices such as the keyboard. We are using what is called
 *  'inline assembly' in these routines to actually do the work */
@@ -61,6 +84,19 @@ void main()
 
     cmd_dir();
     cmd_cat("aaa     .txt");
+
+    f_Vd_TimerAlloc(&v_PtSt_Timer1);
+    f_Vd_TimerInit(v_PtSt_Timer1, timerCallback1);
+    f_Vd_TimerSetting(v_PtSt_Timer1, 100);
+    
+    f_Vd_TimerAlloc(&v_PtSt_Timer2);
+    f_Vd_TimerInit(v_PtSt_Timer2, timerCallback2);
+    f_Vd_TimerSetting(v_PtSt_Timer2, 200);
+
+    f_Vd_TimerAlloc(&v_PtSt_Timer3);
+    f_Vd_TimerInit(v_PtSt_Timer3, timerCallback3);
+    f_Vd_TimerSetting(v_PtSt_Timer3, 400);
+
     /* ...and leave this loop in. There is an endless loop in
     *  'start.asm' also, if you accidentally delete this next line */
     for (;;)
