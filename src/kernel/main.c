@@ -3,6 +3,7 @@
 t_St_TimerInfo *v_PtSt_Timer1;
 t_St_TimerInfo *v_PtSt_Timer2;
 t_St_TimerInfo *v_PtSt_Timer3;
+t_St_TimerInfo *v_PtSt_Timer4;
 
 void timerCallback1()
 {
@@ -20,6 +21,30 @@ void timerCallback3()
 {
     printk("\nTimer3 timeout");
     f_Vd_TimerSetting(v_PtSt_Timer3, 400);
+    task_switch_4();
+}
+
+void timerCallback4()
+{
+    printk("\nTimer4 timeout");
+    f_Vd_TimerSetting(v_PtSt_Timer4, 100);
+    task_switch_4();
+}
+
+void taskBMain()
+{
+    t_U32 v_U32_Counter = 0;
+    io_sti();
+    printk("\nEFLAGS = %x", io_load_eflags());
+    f_Vd_TimerAlloc(&v_PtSt_Timer4);
+    f_Vd_TimerInit(v_PtSt_Timer4, timerCallback4);
+    f_Vd_TimerSetting(v_PtSt_Timer4, 100);
+    printk("\nEFLAGS = %x", io_load_eflags());
+    while(1)
+    {
+        // printk("\n%d", v_U32_Counter++);
+        io_sti();
+    }
 }
 
 
@@ -55,6 +80,9 @@ void main()
 
     t_St_MemoryMan v_St_MemoryMan;
 
+    init_video();
+    printk("AAA");
+
     gdt_install();
     idt_install();
     isrs_install();
@@ -70,6 +98,7 @@ void main()
     outportb(0x21, 0xf0);
     outportb(0xA1, 0xff);
 
+    /* Memory test */
     puts(text);
     printk("\nkernel_start = %x", address_data.kernel_start);
     printk("\nkernel_end = %x", address_data.kernel_end);
@@ -82,9 +111,11 @@ void main()
     printk("\nFree Memory Size = %dB", f_U32_GetFreeMemorySize(&v_St_MemoryMan));
     printk("\nFree Memory Size = %dMB", f_U32_GetFreeMemorySize(&v_St_MemoryMan) / (1024 * 1024));
 
+    /* File system test */
     cmd_dir();
     cmd_cat("aaa     .txt");
 
+    /* Timer test */
     f_Vd_TimerAlloc(&v_PtSt_Timer1);
     f_Vd_TimerInit(v_PtSt_Timer1, timerCallback1);
     f_Vd_TimerSetting(v_PtSt_Timer1, 100);
@@ -96,6 +127,33 @@ void main()
     f_Vd_TimerAlloc(&v_PtSt_Timer3);
     f_Vd_TimerInit(v_PtSt_Timer3, timerCallback3);
     f_Vd_TimerSetting(v_PtSt_Timer3, 400);
+
+    /* Multitasking test */
+    t_St_Tss32 v_St_TssA, v_St_TssB;
+    v_St_TssA.v_U32_Ldtr = 0;
+    v_St_TssA.v_U32_IoMap = 0x40000000;
+    v_St_TssB.v_U32_Ldtr = 0;
+    v_St_TssB.v_U32_IoMap = 0x40000000;
+    gdt_set_gate(3, &v_St_TssA, 103, DEF_ACCESS_SYS_TSS32, DEF_GRAN16_1B);
+    gdt_set_gate(4, &v_St_TssB, 103, DEF_ACCESS_SYS_TSS32, DEF_GRAN16_1B);
+    load_tr(3 * 8);
+    t_U32 v_U32_TaskBEsp = f_U32_MemoryAlloc4k(&v_St_MemoryMan, 64 * 1024) + 64 * 1024;
+    v_St_TssB.v_U32_Eip = (t_U32)&taskBMain;
+    v_St_TssB.v_U32_Eflags = 0x00000202;
+    v_St_TssB.v_U32_Eax = 0;
+    v_St_TssB.v_U32_Ecx = 0;
+    v_St_TssB.v_U32_Edx = 0;
+    v_St_TssB.v_U32_Ebx = 0;
+    v_St_TssB.v_U32_Esp = v_U32_TaskBEsp;
+    v_St_TssB.v_U32_Ebp = 0;
+    v_St_TssB.v_U32_Esi = 0;
+    v_St_TssB.v_U32_Edi = 0;
+    v_St_TssB.v_U32_Es = 2 * 8;
+    v_St_TssB.v_U32_Cs = 1 * 8;
+    v_St_TssB.v_U32_Ss = 2 * 8;
+    v_St_TssB.v_U32_Ds = 2 * 8;
+    v_St_TssB.v_U32_Fs = 2 * 8;
+    v_St_TssB.v_U32_Gs = 2 * 8;
 
     /* ...and leave this loop in. There is an endless loop in
     *  'start.asm' also, if you accidentally delete this next line */

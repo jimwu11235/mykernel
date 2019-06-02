@@ -62,6 +62,17 @@ extern void settextcolor(t_U8 forecolor, t_U8 backcolor);
 extern void init_video();
 
 /* GDT.C */
+#define DEF_ACCESS_UNUSED           0x00
+#define DEF_ACCESS_SYS_DATA32_RW    0x92
+#define DEF_ACCESS_SYS_CODE32_RE    0x9A
+#define DEF_ACCESS_APP_DATA32_RW    0xF2
+#define DEF_ACCESS_APP_CODE32_RE    0xFA
+#define DEF_ACCESS_SYS_TSS32        0x89
+
+#define DEF_GRAN32_1B     0x4F
+#define DEF_GRAN32_4KB    0xCF
+#define DEF_GRAN16_1B     0x0F
+#define DEF_GRAN16_4KB    0x8F
 extern void gdt_set_gate(int num, unsigned long base, unsigned long limit, unsigned char access, unsigned char gran);
 extern void gdt_install();
 
@@ -153,5 +164,41 @@ typedef struct _FILEINFO_STRUCT
 }FILEINFO_STRUCT;
 extern void cmd_dir();
 extern void cmd_cat(t_U8 *filename);
+
+/* MULTITASKING.H */
+typedef struct _t_St_Tss32
+{
+    t_U32   v_U32_BackLink;
+    t_U32   v_U32_Esp0;
+    t_U32   v_U32_Ss0;
+    t_U32   v_U32_Esp1;
+    t_U32   v_U32_Ss1;
+    t_U32   v_U32_Esp2;
+    t_U32   v_U32_Ss2;
+    t_U32   v_U32_Cr3;
+
+    /* 32-bit register */
+    t_U32   v_U32_Eip;
+    t_U32   v_U32_Eflags;
+    t_U32   v_U32_Eax;
+    t_U32   v_U32_Ecx;
+    t_U32   v_U32_Edx;
+    t_U32   v_U32_Ebx;
+    t_U32   v_U32_Esp;
+    t_U32   v_U32_Ebp;
+    t_U32   v_U32_Esi;
+    t_U32   v_U32_Edi;
+
+    /* 16-bit register */
+    t_U32   v_U32_Es;
+    t_U32   v_U32_Cs;
+    t_U32   v_U32_Ss;
+    t_U32   v_U32_Ds;
+    t_U32   v_U32_Fs;
+    t_U32   v_U32_Gs;
+
+    t_U32   v_U32_Ldtr;
+    t_U32   v_U32_IoMap;
+} t_St_Tss32;
 
 #endif

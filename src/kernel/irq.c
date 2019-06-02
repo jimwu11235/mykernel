@@ -57,7 +57,7 @@ void irq_remap(void)
     outportb(0xA1, 0x02);
     outportb(0x21, 0x01); /* No buffer mode */
     outportb(0xA1, 0x01); /* No buffer mode */
-    outportb(0x21, 0xff);
+    outportb(0x21, 0xf0);
     outportb(0xA1, 0xff);
 }
 

@@ -1,9 +1,16 @@
+GLOBAL io_hlt
 GLOBAL io_cli, io_sti
 GLOBAL io_load_eflags, io_store_eflags
 GLOBAL load_cr0, store_cr0
+GLOBAL load_tr
 GLOBAL memtest_asm
+GLOBAL task_switch_3, task_switch_4
 
 [SECTION .text]
+io_hlt:             ; void io_hlt(void);
+    hlt
+    ret
+
 io_cli:             ; void io_cli(void);
     cli
     ret
@@ -30,6 +37,10 @@ load_cr0:           ; int load_cr0(void);
 store_cr0:          ; void store_cr0(int cr0);
     mov     eax, [esp+4]
     mov     cr0, eax
+    ret
+
+load_tr:            ; void load_tr(int tr);
+    ltr     [esp+4]
     ret
 
 memtest_asm:        ; unsigned int memtest_asm(unsigned int start, unsigned int end);
@@ -63,5 +74,13 @@ mts_fin:
     pop     ebx
     pop     esi
     pop     edi
+    ret
+
+task_switch_4:
+    jmp     4*8:0
+    ret
+
+task_switch_3:
+    jmp     3*8:0
     ret
     

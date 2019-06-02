@@ -22,7 +22,8 @@ struct gdt_ptr
 } __attribute__((packed));
 
 /* Our GDT, with 3 entries, and finally our special GDT pointer */
-struct gdt_entry gdt[3];
+// struct gdt_entry gdt[6];
+struct gdt_entry *gdt = (struct gdt_entry *)0x00270000;
 struct gdt_ptr gp;
 
 /* This will be a function in start.asm. We use this to properly
@@ -54,7 +55,7 @@ void gdt_set_gate(int num, unsigned long base, unsigned long limit, unsigned cha
 void gdt_install()
 {
     /* Setup the GDT pointer and limit */
-    gp.limit = (sizeof(struct gdt_entry) * 3) - 1;
+    gp.limit = (sizeof(struct gdt_entry) * 6) - 1;
     gp.base = &gdt;
 
     /* Our NULL descriptor */
@@ -66,12 +67,12 @@ void gdt_install()
     *  Please check the table above in the tutorial in order
     *  to see exactly what each value means */
     // gdt_set_gate(1, 0x00100000, 0x0007FFFF, 0x9A, 0x40);
-    gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);
+    gdt_set_gate(1, 0x00000000, 0xFFFFFFFF, DEF_ACCESS_SYS_CODE32_RE, DEF_GRAN32_4KB);
 
     /* The third entry is our Data Segment. It's EXACTLY the
     *  same as our code segment, but the descriptor type in
     *  this entry's access byte says it's a Data Segment */
-    gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);
+    gdt_set_gate(2, 0, 0xFFFFFFFF, DEF_ACCESS_SYS_DATA32_RW, DEF_GRAN32_4KB);
 
     /* Flush out the old GDT and install the new changes! */
     gdt_flush();

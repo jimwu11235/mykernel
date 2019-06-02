@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "system.h": "c",
+        "asmfunc.h": "c"
+    }
+}

@@ -27,6 +27,8 @@ void timer_handler(struct regs *r)
     t_PtFn_TimerCallback    v_PtFn_TimerCallback;
     t_U32                   v_U32_CbkFifoCounter;
 
+    // printk("\nTimer Interrupt !");
+
     v_FsSt_TimerMan.v_U32_TimeCounter++;
     
     /* Check if the time counter reach the next timeout time */
@@ -159,5 +161,6 @@ void f_Vd_TimerSetting(t_St_TimerInfo *v_PtSt_TimerInfo, t_U32 v_U32_Timeout)
             }
         }
     }
-    io_store_eflags(v_U32_Eflags);
+    // io_store_eflags(v_U32_Eflags);
+    io_sti();
 }
